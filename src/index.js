@@ -3,9 +3,10 @@ axios.defaults.headers.common['x-api-key'] =
   'live_dBchgHREbQNfxjdxMs42VxGothK4l5e0eEcVX7fLaFe6MmWBeww5tuF1UtuwncHv';
 
 import { fetchBreeds, fetchCatByBreed } from './js/cat-api';
-import createMarkup from './js/createMarkup';
+import { createMarkup, createCatMarkup } from './js/createMarkup';
 import SlimSelect from 'slim-select';
 import refs from './js/refs';
+import Notiflix from 'notiflix';
 
 const { select, loader, error, catInfo } = refs;
 
@@ -30,24 +31,18 @@ function handleOnSelect(e) {
   catInfo.classList.add('cat-none');
 
   fetchCatByBreed(id)
-    .then(id => {
-      const html = `<div class="cat-info">
-      <img src='${id[0].url}' width='480' alt="${id[0].breeds[0].name}">
-      <div class="cat-box">
-          <h2>${id[0].breeds[0].name}</h2>
-          <p>${id[0].breeds[0].description}</p>
-      <h2>Temperament</h2>
-      <p>${id[0].breeds[0].temperament}</p>
-      </div>
-  </div>`;
+    .then(catData => {
+      const html = createCatMarkup(catData);
       catInfo.innerHTML = html;
       loader.classList.remove('loader');
       catInfo.classList.remove('cat-none');
       error.classList.remove('error-none');
     })
-
     .catch(error => {
       console.log(error);
+      Notiflix.Notify.failure(
+        'Oops! Something went wrong! Try reloading the page!'
+      );
       error.classList.add('error-none');
     });
 }
